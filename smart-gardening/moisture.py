@@ -23,7 +23,7 @@ def _initialize_clients():
         mcp.loop_start()
 
         name, chan = plant["NAME"], plant["WATER_PUMP_CHANNEL"]
-        logging.info("initialized new sensor client for plant %s (%s)" % (name, chan))
+        logging.info("initialized moisture sensor for plant %s (%s)" % (name, chan))
 
         clients.append(mcp)
 
@@ -50,7 +50,7 @@ def check_moisture_level():
 
 if __name__ == '__main__':
     logging.getLogger().setLevel(SETTINGS["LOG_LEVEL"])
-    logging.info("start watering plants")
+    logging.info("start measuring moisture level")
 
     try:
         check_moisture_level()

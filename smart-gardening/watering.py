@@ -21,7 +21,7 @@ def _initialize_clients():
         pump.loop_start()
 
         name, chan = plant["NAME"], plant["WATER_PUMP_CHANNEL"]
-        logging.info("initialized new sensor client for plant %s (%s)" % (name, chan))
+        logging.info("initialized water pump client for plant '%s' (%s)" % (name, chan))
 
         clients.append(pump)
 
@@ -47,8 +47,6 @@ def watering_plants():
 
 
 if __name__ == "__main__":
-    logging.getLogger().setLevel(SETTINGS["LOG_LEVEL"])
-
     logging.getLogger().setLevel(SETTINGS["LOG_LEVEL"])
     logging.info("start watering plants")
 

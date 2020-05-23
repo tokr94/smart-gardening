@@ -26,8 +26,8 @@ def _clean_up():
 
 
 class MQTTClient(ABC):
-    def __init__(self, client_id):
-        self.name = client_id
+    def __init__(self, name):
+        self.name = name
         self._mqttc = mqtt.Client()
         self._mqttc.on_connect = self._on_connect
         self._mqttc.on_disconnect = self._on_disconnect
@@ -120,10 +120,12 @@ class MoistureSensor(MQTTClient):
         for _ in range(n):
             val += self._mcp.read(self.pin)
 
+        self._log_debug("obtained moisture level %.2f" % val)
         return val / n
 
     def voltage(self):
         chan = AnalogIn(self._mcp, self.pin)
+        self._log_debug("fetched voltage: %.2f" % chan.voltage)
         return chan.voltage
 
 
