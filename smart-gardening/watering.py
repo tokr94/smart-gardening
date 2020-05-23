@@ -37,7 +37,7 @@ def watering_plants():
 
         for pump in clients:
             if pump.is_connected():
-                pump.publish_status_async()
+                pump.publish_reading_async()
                 _any_connected = True
 
         if not _any_connected:

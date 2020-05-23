@@ -44,7 +44,11 @@ class MQTTClient(ABC):
         pass
 
     @abstractmethod
-    def _on_message(self):
+    def _on_message(self, client, userdata, msg):
+        pass
+
+    @abstractmethod
+    def _publish(self):
         pass
 
     def _log_debug(self, msg):
@@ -75,6 +79,12 @@ class MQTTClient(ABC):
         self._mqttc.disconnect()
         self._connected = False
 
+    def publish_reading_async(self):
+        thread = Thread(target=self._publish, args=())
+        thread.daemon = True
+        thread.start()
+        self._log_debug("started new thread for publishing")
+
 
 class MoistureSensor(MQTTClient):
 
@@ -103,12 +113,6 @@ class MoistureSensor(MQTTClient):
 
     def _on_message(self, client, userdata, msg):
         pass
-
-    def publish_reading_async(self):
-        thread = Thread(target=self._publish(), args=())
-        thread.daemon = True
-        thread.start()
-        self._log_debug("started new thread for publishing")
 
     def _publish(self):
         if self.is_connected():
@@ -145,7 +149,6 @@ class Pump(MQTTClient):
         self._stat = "off"
 
         super().__init__(channel)
-        self._turn_off()
 
     def _on_connect(self, client, userdata, flags, rc):
         if rc == 0:
@@ -180,7 +183,6 @@ class Pump(MQTTClient):
         self._stat = "off"
         GPIO.setup(self.pin, GPIO.OUT, initial=GPIO.HIGH)
 
-    @asyncio.coroutine
-    def publish_status_async(self):
+    def _publish(self):
         topic = os.path.join(self.topic, "state")
         self._mqttc.publish(topic, self._stat)
