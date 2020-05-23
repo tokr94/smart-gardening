@@ -13,7 +13,7 @@ def _initialize_clients():
 
     for plant in SETTINGS["PLANTS"]:
         pump = Pump(
-            pin=plant["MOISTURE_PIN"],
+            pin=plant["WATER_PUMP_GPIO"],
             topic=SETTINGS["MQTT"]["MQTT_TOPIC"],
             channel=plant["WATER_PUMP_CHANNEL"])
 

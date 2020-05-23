@@ -10,6 +10,7 @@ import time
 from abc import ABC, abstractmethod
 from adafruit_mcp3xxx.analog_in import AnalogIn
 from adafruit_mcp3xxx.mcp3008 import MCP3008
+from threading import Thread
 
 try:
     import RPi.GPIO as GPIO
@@ -89,6 +90,7 @@ class MoistureSensor(MQTTClient):
         self._mcp = MCP3008(spi, cs)
 
         super().__init__(channel)
+        self._log_debug("moisture sensor publishing to topic '%s'" % self.topic)
 
     def _on_connect(self, client, userdata, flags, rc):
         if rc == 0:
@@ -102,8 +104,13 @@ class MoistureSensor(MQTTClient):
     def _on_message(self, client, userdata, msg):
         pass
 
-    @asyncio.coroutine
     def publish_reading_async(self):
+        thread = Thread(target=self._publish(), args=())
+        thread.daemon = True
+        thread.start()
+        self._log_debug("started new thread for publishing")
+
+    def _publish(self):
         if self.is_connected():
             val = self.read(10)
             if val > self.thresh:
@@ -120,8 +127,9 @@ class MoistureSensor(MQTTClient):
         for _ in range(n):
             val += self._mcp.read(self.pin)
 
+        val /= n
         self._log_debug("obtained moisture level %.2f" % val)
-        return val / n
+        return val
 
     def voltage(self):
         chan = AnalogIn(self._mcp, self.pin)

@@ -13,7 +13,7 @@ def _initialize_clients():
 
     for plant in SETTINGS["PLANTS"]:
         mcp = MoistureSensor(
-            pin=plant["WATER_PUMP_GPIO"],
+            pin=plant["MOISTURE_PIN"],
             topic=SETTINGS["MQTT"]["MQTT_TOPIC"],
             channel=plant["WATER_PUMP_CHANNEL"],
             threshold=plant["MOISTURE_THRESHOLD"],
