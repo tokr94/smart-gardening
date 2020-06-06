@@ -22,12 +22,12 @@ WATER_PUMP_GPIO = {
 
 
 def _turn_on(pin):
-    logging.debug("Turn on pin " + pin)
+    logging.debug("Turn on pin " + str(pin))
     GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
 
 
 def _turn_off(pin):
-    logging.debug("Turn off pin " + pin)
+    logging.debug("Turn off pin " + str(pin))
     GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)
 
 
