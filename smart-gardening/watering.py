@@ -5,20 +5,7 @@ import os
 import paho.mqtt.client as mqtt
 import RPi.GPIO as GPIO
 
-
-LOG_LEVEL = logging.INFO
-
-MQTT_HOST = "192.168.178.29"
-MQTT_PORT = 1883
-MQTT_TOPIC = "thilokratzer/garden/watering/#"
-
-# GPIO Number (BCM) for the relais
-WATER_PUMP_GPIO = {
-    "in01": 5,
-    "in02": 6,
-    "in03": 13,
-    "in04": 19
-}
+from settings import *
 
 
 def _turn_on(pin):
@@ -37,7 +24,8 @@ def _on_connect(client, userdata, flags, rc):
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
-    client.subscribe(MQTT_TOPIC)
+    topic = os.path.join(MQTT_TOPIC, "#")
+    client.subscribe(topic)
 
 
 # The callback for when a PUBLISH message is received from the server.
