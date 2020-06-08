@@ -1,11 +1,19 @@
 #!/usr/bin/python3
-
 import logging
 import os
 import paho.mqtt.client as mqtt
-import RPi.GPIO as GPIO
 
 from settings import *
+
+try:
+    import RPi.GPIO as GPIO
+
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BCM)
+
+except ImportError as ie:
+    logging.warning(str(ie) + " - using mock instead")
+    from mocks.GPIOMock import GPIO
 
 
 def _turn_on(pin):
@@ -60,9 +68,6 @@ if __name__ == '__main__':
     logging.info("Start watering plants")
 
     try:
-        GPIO.setwarnings(False)
-        GPIO.setmode(GPIO.BCM)
-
         client = mqtt.Client()
         client.on_connect = _on_connect
         client.on_disconnect = _on_disconnect
@@ -74,6 +79,3 @@ if __name__ == '__main__':
     except KeyboardInterrupt as e:
         logging.info("Interrupt: " + str(e))
         GPIO.cleanup()
-
-    except ImportError:
-        logging.info("Error importing RPi.GPIO!")
