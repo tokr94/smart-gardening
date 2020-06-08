@@ -1,12 +1,16 @@
 #!/usr/bin/python3
-
+import board
+import busio
+import digitalio
 import logging
 import os
 import paho.mqtt.client as mqtt
 import time
 
-from settings import *
+from adafruit_mcp3xxx.mcp3008 import MCP3008
 from threading import Thread
+
+from settings import *
 
 
 def _publish_reading_async(client, topic, timeout_in_sec=10):
@@ -14,6 +18,28 @@ def _publish_reading_async(client, topic, timeout_in_sec=10):
     client.publish(topic, "on")
     time.sleep(timeout_in_sec)
     client.publish(topic, "off")
+
+
+def get_reading(pin):
+    val = 0.0
+
+    try:
+        n_values = 10
+        # create the mcp object
+        spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
+        cs = digitalio.DigitalInOut(board.CE0)
+        mcp = MCP3008(spi, cs)
+
+        for _ in range(n_values):
+            val += mcp.read(pin)
+
+        val /= n_values
+        logging.debug("Obtained moisture level %.2f" % val)
+
+    except AttributeError as ae:
+        logging.error(str(ae) + ": ignore reading pin " + str(pin))
+
+    return val
 
 
 if __name__ == '__main__':
@@ -25,9 +51,21 @@ if __name__ == '__main__':
 
     threads = []
 
-    for chan, timeout in WATER_PUMP_TIMEOUT_IN_SEC.items():
+    for plant in PLANTS:
+        chan    = plant["WATER_PUMP_CHANNEL"]  # relay channel
+        pin     = plant["MOISTURE_PIN"]
+        timeout = plant["WATERING_TIME"]
+
         topic = os.path.join(MQTT_TOPIC, chan)
 
+        if plant["CHECK_MOISTURE_LEVEL"]:
+            val = get_reading(pin)
+            if val > plant["MOISTURE_THRESHOLD"]:
+                # skip plant when moisture above threshold
+                logging.info("Moisture level above threshold - skipping " + plant["NAME"])
+                continue
+
+        # start new thread to publish "on" and "off" signal
         thread = Thread(name=chan, target=_publish_reading_async, args=(client, topic, timeout))
         thread.daemon = True
         thread.start()

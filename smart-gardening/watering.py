@@ -26,6 +26,10 @@ def _turn_off(pin):
     GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)
 
 
+def _get_plants_by_channel(chan):
+    return [plant for plant in PLANTS if plant["WATER_PUMP_CHANNEL"] == chan]
+
+
 # The callback for when the client receives a CONNACK response from the server.
 def _on_connect(client, userdata, flags, rc):
     logging.info("Connected with result code " + str(rc))
@@ -42,21 +46,23 @@ def _on_message(client, userdata, msg):
     logging.info("Received message on " + msg.topic + ": " + cmd)
 
     chan = os.path.basename(msg.topic)
-    pin = WATER_PUMP_GPIO.get(chan)
+    plants = _get_plants_by_channel(chan)
 
-    if cmd == "on":
-        _turn_on(pin)
+    if not plants:
+        logging.warning("No plants defined for channel " + chan)
 
-    elif cmd == "off":
-        _turn_off(pin)
+    for plant in plants:
+        pin = plant["WATER_PUMP_GPIO"]
+        logging.info("Set pump for " + plant["NAME"] + ": " + str(pin))
 
-    elif cmd == "shutdown":
-        for pin in WATER_PUMP_GPIO.values():
+        if cmd == "on":
+            _turn_on(pin)
+
+        elif cmd == "off":
             _turn_off(pin)
 
-        raise KeyboardInterrupt("Received shutdown signal")
-    else:
-        logging.warning("Received unknown command " + cmd)
+        else:
+            logging.warning("Received unknown command " + cmd)
 
 
 def _on_disconnect(client, userdata, flags, rc):

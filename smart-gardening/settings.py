@@ -1,32 +1,55 @@
 #!/usr/bin/python3
-
+import adafruit_mcp3xxx.mcp3008 as MCP
 import logging
-
 
 ##################################################################
 ##################### CUSTOMIZEABLE SETTINGS #####################
 ##################################################################
 
-LOG_LEVEL = logging.DEBUG
+LOG_LEVEL  = logging.INFO
 
-MQTT_HOST = "192.168.178.29"
-MQTT_PORT = 1883
+MQTT_HOST  = "192.168.178.29"
+MQTT_PORT  = 1883
 MQTT_TOPIC = "thilokratzer/garden/watering/"
 
-# GPIO Number (BCM) for the relais
-WATER_PUMP_GPIO = {
-    "in01": 5,
-    "in02": 6,
-    "in03": 13,
-    "in04": 19
-}
-
-WATER_PUMP_TIMEOUT_IN_SEC = {
-    "in01": 10,
-    "in02": 10,
-    "in03": 10,
-    "in04": 10
-}
+PLANTS = [
+    {
+        "NAME":                 "Tomate",
+        "MOISTURE_PIN":         MCP.P0,     # of MCP3008
+        "MOISTURE_THRESHOLD":   450,        # above threshold the pump will turn on
+        "CHECK_MOISTURE_LEVEL": False,      # whether to use moisture sensor
+        "WATER_PUMP_GPIO":      5,          # GPIO Number (BCM) for the relay
+        "WATER_PUMP_CHANNEL":   "in01",     # input channel for the relay
+        "WATERING_TIME":        20,         # seconds, how long the pump should be turned on
+    },
+    {
+        "NAME":                 "Kraeuter",
+        "MOISTURE_PIN":         MCP.P1,
+        "MOISTURE_THRESHOLD":   450,
+        "CHECK_MOISTURE_LEVEL": False,
+        "WATER_PUMP_GPIO":      6,
+        "WATER_PUMP_CHANNEL":   "in02",
+        "WATERING_TIME":        12,
+    },
+    {
+        "NAME":                 "Olive",
+        "MOISTURE_PIN":         MCP.P2,
+        "MOISTURE_THRESHOLD":   450,
+        "CHECK_MOISTURE_LEVEL": False,
+        "WATER_PUMP_GPIO":      13,
+        "WATER_PUMP_CHANNEL":   "in03",
+        "WATERING_TIME":        5,
+    },
+    {
+        "NAME":                 "Chilli",
+        "MOISTURE_PIN":         MCP.P3,
+        "MOISTURE_THRESHOLD":   450,
+        "CHECK_MOISTURE_LEVEL": False,
+        "WATER_PUMP_GPIO":      19,
+        "WATER_PUMP_CHANNEL":   "in04",
+        "WATERING_TIME":        10,
+    }
+]
 
 ##################################################################
 ################# END OF CUSTOMIZEABLE SETTINGS ##################
