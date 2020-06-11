@@ -14,10 +14,11 @@ from settings import *
 
 
 def _publish_reading_async(client, topic, timeout_in_sec=10):
-    logging.info("Started new thread for publishing on " + topic)
+    logging.info("Publishing on " + topic)
     client.publish(topic, "on")
     time.sleep(timeout_in_sec)
     client.publish(topic, "off")
+    logging.info("Exit publishing on " + topic)
 
 
 def get_reading(pin):
@@ -37,6 +38,7 @@ def get_reading(pin):
         logging.debug("Obtained moisture level %.2f" % val)
 
     except AttributeError as ae:
+        # fails when no sensor attached
         logging.error(str(ae) + ": ignore reading pin " + str(pin))
 
     return val
@@ -65,15 +67,8 @@ if __name__ == '__main__':
                 logging.info("Moisture level above threshold - skipping " + plant["NAME"])
                 continue
 
-        # start new thread to publish "on" and "off" signal
-        thread = Thread(name=chan, target=_publish_reading_async, args=(client, topic, timeout))
-        thread.daemon = True
-        thread.start()
-
-        threads.append(thread)
+        # publish "on" and "off" signal with timeout
+        _publish_reading_async(client, topic, timeout)
         time.sleep(.1)
 
-    for thread in threads:
-        thread.join()
-
-    logging.info("All threads finished successfully")
+    logging.info("Cronjob finished successfully")
