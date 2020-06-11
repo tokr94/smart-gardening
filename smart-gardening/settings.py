@@ -14,22 +14,22 @@ MQTT_TOPIC = "thilokratzer/garden/watering/"
 
 PLANTS = [
     {
-        "NAME":                 "Chilli",
+        "NAME":                 "Kraeuter",
         "MOISTURE_PIN":         MCP.P0,     # pin of MCP3008
         "MOISTURE_THRESHOLD":   450,        # above threshold the pump will turn on
         "CHECK_MOISTURE_LEVEL": False,      # whether to use moisture sensor
         "WATER_PUMP_GPIO":      26,         # GPIO Number (BCM) for the relay
         "WATER_PUMP_CHANNEL":   "in01",     # input channel for the relay
-        "WATERING_TIME":        10,         # seconds, how long the pump should be turned on
+        "WATERING_TIME":        12,         # seconds, how long the pump should be turned on
     },
     {
-        "NAME":                 "Kraeuter",
+        "NAME":                 "Chilli",
         "MOISTURE_PIN":         MCP.P1,
         "MOISTURE_THRESHOLD":   450,
         "CHECK_MOISTURE_LEVEL": False,
         "WATER_PUMP_GPIO":      19,
         "WATER_PUMP_CHANNEL":   "in02",
-        "WATERING_TIME":        12,
+        "WATERING_TIME":        8,
     },
     {
         "NAME":                 "Salbei/Minze",
