@@ -1,3 +1,4 @@
 adafruit-circuitpython-mcp3xxx
-board
 paho-mqtt
+RPi.GPIO
+setuptools

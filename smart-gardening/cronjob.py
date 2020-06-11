@@ -37,9 +37,9 @@ def get_reading(pin):
         val /= n_values
         logging.debug("Obtained moisture level %.2f" % val)
 
-    except AttributeError as ae:
+    except Exception as e:
         # fails when no sensor attached
-        logging.error(str(ae) + ": ignore reading pin " + str(pin))
+        logging.error(str(e) + ": ignore reading pin " + str(pin))
 
     return val
 

@@ -15,7 +15,7 @@ MQTT_TOPIC = "thilokratzer/garden/watering/"
 PLANTS = [
     {
         "NAME":                 "Tomate",
-        "MOISTURE_PIN":         MCP.P0,     # of MCP3008
+        "MOISTURE_PIN":         MCP.P0,     # pin of MCP3008
         "MOISTURE_THRESHOLD":   450,        # above threshold the pump will turn on
         "CHECK_MOISTURE_LEVEL": False,      # whether to use moisture sensor
         "WATER_PUMP_GPIO":      5,          # GPIO Number (BCM) for the relay
