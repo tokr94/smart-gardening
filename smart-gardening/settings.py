@@ -20,7 +20,7 @@ PLANTS = [
         "CHECK_MOISTURE_LEVEL": False,      # whether to use moisture sensor
         "WATER_PUMP_GPIO":      26,         # GPIO Number (BCM) for the relay
         "WATER_PUMP_CHANNEL":   "in01",     # input channel for the relay
-        "WATERING_TIME":        20,         # seconds, how long the pump should be turned on
+        "WATERING_TIME":        10,         # seconds, how long the pump should be turned on
     },
     {
         "NAME":                 "Kraeuter",
@@ -38,7 +38,7 @@ PLANTS = [
         "CHECK_MOISTURE_LEVEL": False,
         "WATER_PUMP_GPIO":      13,
         "WATER_PUMP_CHANNEL":   "in03",
-        "WATERING_TIME":        5,
+        "WATERING_TIME":        15,
     },
     {
         "NAME":                 "Tomate",

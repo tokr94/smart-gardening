@@ -64,6 +64,7 @@ def _on_connect(client, userdata, flags, rc):
         msg = mqtt.error_string(rc)
         logging.error("Subscription failed: " + msg)
 
+
 # The callback for when a PUBLISH message is received from the server.
 def _on_message(client, userdata, msg):
     cmd = msg.payload.decode("utf-8").lower()
