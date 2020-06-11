@@ -4,6 +4,7 @@ import os
 import paho.mqtt.client as mqtt
 
 from settings import *
+from threading import Event, Lock, Thread
 
 try:
     import RPi.GPIO as GPIO
@@ -16,14 +17,33 @@ except ImportError as ie:
     from mocks.GPIOMock import GPIO
 
 
-def _turn_on(pin):
-    logging.debug("Turn on pin " + str(pin))
+lock = Lock()  # lock for relay usage
+event_per_channel = dict()
+
+
+def _turn_on(pin, turn_off_event):
+    logging.debug("Trying to acquire lock for pin " + str(pin))
+    lock.acquire(blocking=True)
+
+    if turn_off_event.is_set():
+        logging.info("Shutdown event already set for pin " + str(pin) + ": ignore")
+        lock.release()
+        return
+
+    logging.info("Turn on pin " + str(pin))
     GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
+
+    turn_off_event.wait()
+    _turn_off(pin)
 
 
 def _turn_off(pin):
-    logging.debug("Turn off pin " + str(pin))
+    logging.info("Turn off pin " + str(pin))
     GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)
+    try:
+        lock.release()
+    except RuntimeError as e:
+        logging.warning("Failed to release lock for pin " + str(pin) + ": " + str(e))
 
 
 def _get_plants_by_channel(chan):
@@ -37,8 +57,12 @@ def _on_connect(client, userdata, flags, rc):
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
     topic = os.path.join(MQTT_TOPIC, "#")
-    client.subscribe(topic)
-
+    rc, _ = client.subscribe(topic)
+    if rc == mqtt.MQTT_ERR_SUCCESS:
+        logging.info("Successfully subscribed topic " + topic)
+    else:
+        msg = mqtt.error_string(rc)
+        logging.error("Subscription failed: " + msg)
 
 # The callback for when a PUBLISH message is received from the server.
 def _on_message(client, userdata, msg):
@@ -51,22 +75,37 @@ def _on_message(client, userdata, msg):
     if not plants:
         logging.warning("No plants defined for channel " + chan)
 
-    for plant in plants:
-        pin = plant["WATER_PUMP_GPIO"]
-        logging.info("Set pump for " + plant["NAME"] + ": " + str(pin))
+    if len(plants) > 1:
+        logging.warning("Multiple plants for same channel - this can cause serious trouble")
+
+    else:
+        pin = plants[0]["WATER_PUMP_GPIO"]
 
         if cmd == "on":
-            _turn_on(pin)
+            if event_per_channel.get(chan) is not None:
+                logging.warning("Pump already running and waiting for shutdown event")
+            else:
+                event = Event()
+                event_per_channel[chan] = event
+                thread = Thread(target=_turn_on, args=(pin, event))
+                thread.daemon = True
+                thread.start()
 
         elif cmd == "off":
-            _turn_off(pin)
+            event = event_per_channel.get(chan)
+            if event is None:
+                logging.warning("No waiting thread found for channel " + chan)
+            else:
+                event.set()
+                event_per_channel.pop(chan)
 
         else:
             logging.warning("Received unknown command " + cmd)
 
 
 def _on_disconnect(client, userdata, flags, rc):
-    logging.warning("Disconnected from client")
+    msg = mqtt.error_string(rc)
+    logging.warning("Disconnected from client: " + msg)
 
 
 if __name__ == '__main__':
@@ -84,4 +123,12 @@ if __name__ == '__main__':
 
     except KeyboardInterrupt as e:
         logging.info("Interrupt: " + str(e))
+        client.loop_stop()
+
+    finally:
+        # make sure pumps are turned off if program crashes
+        for plant in PLANTS:
+            pin = plant["WATER_PUMP_GPIO"]
+            _turn_off(pin)
+
         GPIO.cleanup()
