@@ -139,7 +139,7 @@ def _initialize_gpio_pins():
     logging.info("Setup output pins (BCM): " + str(pins))
     GPIO.cleanup()
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(pins, GPIO.OUT)
+    GPIO.setup(pins, GPIO.OUT, initial=GPIO.HIGH)
     GPIO.setwarnings(False)
 
 
