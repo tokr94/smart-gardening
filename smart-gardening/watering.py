@@ -137,13 +137,15 @@ def _on_disconnect(client, userdata, flags, rc):
 def _initialize_gpio_pins():
     pins = [plant["WATER_PUMP_GPIO"] for plant in PLANTS]
     logging.info("Setup output pins (BCM): " + str(pins))
+    GPIO.cleanup()
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(pins, GPIO.OUT)
     GPIO.setwarnings(False)
 
 
 def _read_credentials(vault_password_file):
-    _pass = open(vault_password_file, "r").read().splitlines()[0]
+    file = os.path.expanduser(vault_password_file)
+    _pass = open(file, "r").read().splitlines()[0]
     vault = Vault(_pass)
     data = vault.load(open("vault.yml", "r").read())
     return data["PUSHNOTIFIER"]
