@@ -165,7 +165,8 @@ def main():
 
     except (KeyboardInterrupt, Exception) as e:
         logging.error("Got exception in main loop: " + str(e))
-        _send_text(credentials["PACKAGE"] + " got exception in main loop")
+        name = credentials.get("PACKAGE", "smart-watering")
+        _send_text(name + " got exception in main loop")
         client.loop_stop()
 
     finally:
