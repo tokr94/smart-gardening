@@ -1,4 +1,7 @@
 adafruit-circuitpython-mcp3xxx
+ansible-vault
 paho-mqtt
+pushnotifier
 RPi.GPIO
+requests
 setuptools

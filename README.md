@@ -56,3 +56,37 @@ This file's only sense is to set all necessary settings.
 | `WATER_PUMP_GPIO`      | GPIO number (BCM) for the relay                       |
 | `WATER_PUMP_CHANNEL`   | mqtt input channel (subtopic) for the relay           |
 | `WATERING_TIME`        | seconds how long the pump should be turned on         |
+
+### smart-gardening/vault.yml
+
+For providing credentials for PushNotifier application in yaml style. You find
+further information on the website:
+https://pushnotifier-python.readthedocs.io/en/latest/getting-started.html
+
+| variable               | description                                           |
+| ---------------------- | ----------------------------------------------------- |
+| `USE_MOCK`             | whether to use push notification at all               |
+| `USER`                 | your username from https://pushnotifier.de            |
+| `PASSWORD`             | your password from https://pushnotifier.de            |
+| `PACKAGE`              | the package you want to send your messages to         |
+| `API_KEY`              | your api key from https://pushnotifier.de/account/api |
+| `DEVICES`              | devices linked to your PushNotifier account           |
+
+File must be encrypted with `ansible-vault`, pass vault password file path (optional)
+to native script:
+
+```shell
+$ python3 watering.py --vault-password-file .vault-pass.txt
+```
+
+Example `vault.yml`:
+
+```yaml
+PUSHNOTIFIER:
+  USE_MOCK: False
+  USER: "tokr"
+  PASSWORD: "password"
+  PACKAGE: "com.watering.rpi.local.app"
+  API_KEY: "abcdefghijkl_12345"
+  DEVICES: ["iphone"]
+```
