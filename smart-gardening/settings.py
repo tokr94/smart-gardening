@@ -6,11 +6,13 @@ import logging
 ##################### CUSTOMIZEABLE SETTINGS #####################
 ##################################################################
 
-LOG_LEVEL  = logging.INFO
+LOG_LEVEL    = logging.INFO
 
-MQTT_HOST  = "192.168.178.29"
-MQTT_PORT  = 1883
-MQTT_TOPIC = "thilokratzer/garden/watering/"
+CRON_PATTERN = "* 18 * * *"
+
+MQTT_HOST    = "192.168.178.29"
+MQTT_PORT    = 1883
+MQTT_TOPIC   = "thilokratzer/garden/watering/"
 
 PLANTS = [
     {
