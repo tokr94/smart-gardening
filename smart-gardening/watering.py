@@ -1,13 +1,11 @@
 #!/usr/bin/python3
-import base64
 import logging
 import os
 import paho.mqtt.client as mqtt
-import sys
 
 from ansible_vault import Vault
-from pushnotifier.PushNotifier import PushNotifier
 from argparse import ArgumentParser
+from pushnotifier.PushNotifier import PushNotifier
 from settings import *
 from threading import Event, Lock, Thread
 
@@ -50,20 +48,21 @@ def _turn_on(pin, plant, turn_off_event):
     if turn_off_event.is_set():
         logging.info("Shutdown event already set for pin " + str(pin) + ": ignore")
         lock.release()
-        return
 
-    logging.info("Turn on pin " + str(pin))
-    _send_text("Start watering " + plant)
-    GPIO.output(pin, GPIO.LOW)
+    else:
+        logging.info("Turn on pin " + str(pin))
+        _send_text("Start watering " + plant)
+        GPIO.output(pin, GPIO.LOW)
 
-    turn_off_event.wait()
-    _turn_off(pin, plant)
+        turn_off_event.wait()
+        _turn_off(pin, plant)
 
 
 def _turn_off(pin, plant):
     logging.info("Turn off pin " + str(pin))
     _send_text("Stop watering " + plant)
     GPIO.output(pin, GPIO.HIGH)
+
     try:
         lock.release()
     except RuntimeError as e:
@@ -100,7 +99,7 @@ def _on_message(client, userdata, msg):
     if not plants:
         logging.warning("No plants defined for channel " + chan)
 
-    if len(plants) > 1:
+    elif len(plants) > 1:
         logging.warning("Multiple plants for same channel - this can cause serious trouble")
 
     else:
