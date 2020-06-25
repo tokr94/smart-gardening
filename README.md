@@ -37,6 +37,18 @@ amount of time due to limitation of parallelism of pumps.
 This script should be called periodically by cronjob. Find an example crontab
 file at `templates/crontab`.
 
+### smart-gardening/cron.py
+
+Simple helper script to add and tweak cronjobs via command line. Timing pattern
+must be defined in the settings file (see below). Script uses active python
+interpreter and full path to `smart-gardening/cronjob.py` as command for cronjob.
+Supports the following arguments:
+
+| argument               | description                                           |
+| ---------------------- | ----------------------------------------------------- |
+| `--user`               | the user of the crontab (current user by default)     |
+| `--disabled`           | whether this cron job should be disabled or not       |
+
 ### smart-gardening/settings.py
 
 This file's only sense is to set all necessary settings.
@@ -44,6 +56,8 @@ This file's only sense is to set all necessary settings.
 | variable               | description                                           |
 | ---------------------- | ----------------------------------------------------- |
 | `LOG_LEVEL`            | threshold for logger object                           |
+|                        |                                                       |
+| `CRON_PATTERN`         | timing pattern for cronjob                            |
 |                        |                                                       |
 | `MQTT_HOST`            | host with mqtt server running (e. g. mosquitto)       |
 | `MQTT_PORT`            | open mqtt port on server                              |
